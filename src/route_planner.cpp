@@ -35,9 +35,10 @@ float RoutePlanner::CalculateHValue(RouteModel::Node const *node) {
 // - For each node in current_node.neighbors, add the neighbor to open_list and set the node's visited attribute to true.
 
 void RoutePlanner::AddNeighbors(RouteModel::Node *current_node) {
+    current_node->visited = true;
     current_node->FindNeighbors();
     for (auto node: current_node->neighbors) {
-        node->parent = this;
+        node->parent = current_node;
         node->h_value = CalculateHValue(node);
         node->g_value = current_node->g_value + current_node->distance(*node);
         node->visited = true;
@@ -46,7 +47,7 @@ void RoutePlanner::AddNeighbors(RouteModel::Node *current_node) {
 }
 
 
-bool Compare(RouteModel::Node* a, RouteModel::Node b) {
+bool Compare(RouteModel::Node* a, RouteModel::Node* b) {
   float f1 = a->h_value + a->g_value; // f1 = g1 + h1
   float f2 = b->h_value + b->g_value; // f2 = g2 + h2
   return f1 > f2; 
@@ -86,7 +87,8 @@ std::vector<RouteModel::Node> RoutePlanner::ConstructFinalPath(RouteModel::Node 
         distance += current->distance(*(current->parent));
         current = current->parent;
     }
-
+    
+    path_found.push_back(*start_node);
     while(!reverse_path.empty()) {
         path_found.push_back(*(reverse_path.top()));
         reverse_path.pop();
@@ -114,5 +116,8 @@ void RoutePlanner::AStarSearch() {
         AddNeighbors(current_node);
         current_node = NextNode();
     } while (!open_list.empty() && current_node != end_node);
-    m_Model.path = ConstructFinalPath(current_node);
+    if (current_node != end_node) {
+        std::cout << "Warning! The A* start search did not terminate at the end node" << std::endl;
+    }
+    m_Model.path = ConstructFinalPath(end_node);
 }
