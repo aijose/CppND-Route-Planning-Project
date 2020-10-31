@@ -34,7 +34,6 @@ float RoutePlanner::CalculateHValue(RouteModel::Node const *node) {
 // - For each node in current_node.neighbors, add the neighbor to open_list and set the node's visited attribute to true.
 
 void RoutePlanner::AddNeighbors(RouteModel::Node *current_node) {
-    current_node->visited = true;
     current_node->FindNeighbors();
     for (auto node: current_node->neighbors) {
         node->parent = current_node;
@@ -47,9 +46,7 @@ void RoutePlanner::AddNeighbors(RouteModel::Node *current_node) {
 
 
 bool Compare(RouteModel::Node* a, RouteModel::Node* b) {
-  float f1 = a->h_value + a->g_value; // f1 = g1 + h1
-  float f2 = b->h_value + b->g_value; // f2 = g2 + h2
-  return f1 > f2; 
+  return a->h_value + a->g_value >= b->h_value + b->g_value; 
 }
 // TODO 5: Complete the NextNode method to sort the open list and return the next node.
 // Tips:
@@ -106,6 +103,7 @@ void RoutePlanner::AStarSearch() {
     RouteModel::Node *current_node = nullptr;
 
     // TODO: Implement your solution here.
+    start_node->visited = true;
     current_node = start_node;
     do {
         AddNeighbors(current_node);
