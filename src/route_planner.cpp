@@ -1,7 +1,6 @@
 #include "route_planner.h"
 #include "model.h"
 #include <algorithm>
-#include <stack>
 
 RoutePlanner::RoutePlanner(RouteModel &model, float start_x, float start_y, float end_x, float end_y): m_Model(model) {
     // Convert inputs to percentage:
@@ -78,21 +77,17 @@ std::vector<RouteModel::Node> RoutePlanner::ConstructFinalPath(RouteModel::Node 
     // Create path_found vector
     distance = 0.0f;
     std::vector<RouteModel::Node> path_found;
-    std::stack<RouteModel::Node*> reverse_path;
 
     // TODO: Implement your solution here.
     RouteModel::Node* current = current_node;
     while(current != start_node) {
-        reverse_path.push(current);
+        path_found.push_back(*current);
         distance += current->distance(*(current->parent));
         current = current->parent;
     }
+    path_found.push_back(*current);
     
-    path_found.push_back(*start_node);
-    while(!reverse_path.empty()) {
-        path_found.push_back(*(reverse_path.top()));
-        reverse_path.pop();
-    }
+    std::reverse(path_found.begin(), path_found.end());
 
     distance *= m_Model.MetricScale(); // Multiply the distance by the scale of the map to get meters.
     return path_found;
@@ -119,5 +114,5 @@ void RoutePlanner::AStarSearch() {
     if (current_node != end_node) {
         std::cout << "Warning! The A* start search did not terminate at the end node" << std::endl;
     }
-    m_Model.path = ConstructFinalPath(end_node);
+    m_Model.path = ConstructFinalPath(current_node);
 }
