@@ -108,7 +108,7 @@ void RoutePlanner::AStarSearch() {
     do {
         AddNeighbors(current_node);
         current_node = NextNode();
-    } while (!open_list.empty() && current_node != end_node);
+    } while (current_node != end_node);
     if (current_node != end_node) {
         std::cout << "Warning! The A* start search did not terminate at the end node" << std::endl;
     }
